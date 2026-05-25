@@ -154,3 +154,59 @@ class Database:
         except sqlite3.Error as e:
             print(f"获取签到记录失败: {e}")
             return []
+    
+    def get_all_students(self) -> List[Student]:
+        """
+        获取所有学生信息
+        
+        Returns:
+            List[Student]: 学生列表
+        """
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT student_id, name, face_encoding FROM students"
+                )
+                rows = cursor.fetchall()
+                students = []
+                for row in rows:
+                    face_encoding = eval(row[2])
+                    students.append(Student(
+                        student_id=row[0],
+                        name=row[1],
+                        face_encoding=face_encoding
+                    ))
+                return students
+        except sqlite3.Error as e:
+            print(f"获取学生列表失败: {e}")
+            return []
+    
+    def delete_student(self, student_id: str) -> bool:
+        """
+        删除学生信息
+        
+        Args:
+            student_id: 学号
+            
+        Returns:
+            bool: 删除是否成功
+        """
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                # 先删除签到记录
+                cursor.execute(
+                    "DELETE FROM attendance WHERE student_id = ?",
+                    (student_id,)
+                )
+                # 再删除学生
+                cursor.execute(
+                    "DELETE FROM students WHERE student_id = ?",
+                    (student_id,)
+                )
+                conn.commit()
+                return True
+        except sqlite3.Error as e:
+            print(f"删除学生失败: {e}")
+            return False
