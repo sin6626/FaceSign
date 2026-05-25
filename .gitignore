@@ -65,3 +65,13 @@ data/faces/*.jpeg
 
 # Logs
 *.log
+
+# Pip Cache
+.pip_cache/
+backend/.pip_cache/
+
+# Uploads
+backend/uploads/
+
+# Test Images
+TestImage/
